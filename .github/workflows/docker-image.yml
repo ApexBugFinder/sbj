@@ -5,9 +5,8 @@ on:
     branches: [ "main" ]
   pull_request:
     branches: [ "main" ]
-env:
-  DOCKER_USER: obasi79
-  DOCKER_IMAGE: ${{DOCKER_USER}}/sbj-webapp
+
+
 
 jobs:
 
@@ -18,7 +17,5 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     - name: Build the Docker image
-      run: echo ${{DOCKER_IMAGE}}
-    #    docker build . --file Dockerfile --tag ${{DOCKER_IMAGE}}:latest
-    # - name: Push Docker Image
-    #   run: docker push ${{DOCKER_IMAGE}}:latest
+      run: docker build . --file Dockerfile --tag obasi79/sbj-webapp:latest
+        
