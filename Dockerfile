@@ -13,6 +13,6 @@ CMD ["npm", "start"]
 
 FROM nginx:latest
 
-COPY --from=build /app/dist/sbj /usr/share/nginx/html
+COPY --from=0 /app/dist/sbj /usr/share/nginx/html
 
 EXPOSE 80
