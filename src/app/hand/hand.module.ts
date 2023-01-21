@@ -8,6 +8,7 @@ import { ShellComponent } from './shell/shell.component';
 import { SharedModule } from '../shared/shared.module';
 import { MatDivider, MatDividerModule } from '@angular/material/divider';
 import { MatButtonModule } from '@angular/material/button';
+import { CardsModule } from '../cards/cards.module';
 
 
 
@@ -19,7 +20,7 @@ import { MatButtonModule } from '@angular/material/button';
     ResultsComponent,
     ShellComponent,
   ],
-  imports: [CommonModule, SharedModule],
+  imports: [CommonModule, SharedModule, CardsModule],
   exports: [
     HandstatusComponent,
     HandbuttonsComponent,

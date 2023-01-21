@@ -12,7 +12,6 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatInputModule } from '@angular/material/input';
 import { MatListModule } from '@angular/material/list';
 
-
 @NgModule({
   declarations: [],
   imports: [
@@ -27,7 +26,8 @@ import { MatListModule } from '@angular/material/list';
     MatSelectModule,
     MatInputModule,
     MatListModule,
-    MatSidenavModule
+    MatSidenavModule,
+    MatDialogModule,
   ],
   exports: [
     MatButtonModule,
@@ -41,7 +41,8 @@ import { MatListModule } from '@angular/material/list';
     MatSelectModule,
     MatInputModule,
     MatListModule,
-    MatSidenavModule
+    MatSidenavModule,
+    MatDialogModule,
   ],
 })
 export class MaterialModule {}

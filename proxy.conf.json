@@ -1,0 +1,9 @@
+{
+  "/api/*": {
+    "target": "https://sbj.webapi.elenco.store/",
+    "secure": false,
+    "changeOrigin": true,
+    "logLevel": "debug"
+  }
+}
+

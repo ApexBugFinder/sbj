@@ -1,0 +1,17 @@
+version: '3.8'
+services:
+      sbj:
+            image: obasi79/sbj
+            stdin_open: true
+            tty: true
+            volumes:
+              - /home/apexbugfinder/.aspnet/https/nginx:/etc/nginx/conf.d/:rw
+            build:
+                  context: .
+                  dockerfile: ./Dockerfile
+            environment:
+                NODE_ENV: production
+            ports:
+                - 8000:80
+
+

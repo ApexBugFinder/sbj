@@ -1,0 +1,118 @@
+image: node:latest
+variables:
+  FF_USE_FASTZIP: "true"
+  IMAGE_TAG: obasi79/sbj
+
+  GITLAB_IMAGE_TAG: $CI_REGISTRY_IMAGE/sbj:$CI_COMMIT_SHORT_SHA
+
+  STAGING_APP: sbj-staging
+  FEATURE_APP: $IMAGE_TAG:$CI_ENVIRONMENT_SLUG
+  # STAGING_SERVER: "https://198.211.29.93"
+
+  APEXBUGSERVER_STAGING: "obasi79/$STAGING_APP:$CI_COMMIT_REF_SLUG"
+  APEXBUGSERVER_STAGING_FEATURE: $DOCKER_USER/$STAGING_APP:$CI_ENVIRONMENT_SLUG
+
+
+
+  PRODUCTION_APP: sbj-prod
+  APEXBUGSERVER_PRODUCTION: "obasi79/$PRODUCTION_APP"
+
+  # HEROKU_STAGING: "registry.heroku.com/$STAGING_APP/web"
+
+
+  APEXBUGSERVER_FEATURE: obasi79/$FEATURE_APP/web"
+
+
+cache:
+  untracked: true
+  policy: push
+  key: ${CI_COMMIT_SHORT_SHA}
+  paths: [node_modules/]
+
+.pull_cached_node_modules:
+  cache:
+    untracked: true
+    key: ${CI_COMMIT_SHORT_SHA}
+    policy: pull
+
+stages:
+  - setup
+  - test
+  - build-stage
+  - deploy-feature-stage
+  - automated test feature
+  - deploy-stage
+  - deploy-server-stage
+
+
+install:
+  stage: setup
+
+  image: node:latest
+  before_script:
+  - apt-get update
+  - node --version
+  - npm install -g npm@9.1.1
+  - npm --version
+  - echo CHECK variables
+  - echo $STAGING_APP
+  - echo $STAGING_SERVER
+  - echo $APEXBUGSERVER_STAGING
+  - echo $APEXBUGSERVER_STAGING_FEATURE
+  script:
+  - npm install
+  - npm run build
+
+
+# build & push to docker image
+build:
+  stage: build-stage
+  image: docker:latest
+  services:
+    - docker:dind
+  before_script:
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+    # - docker login --username $DOCKER_USER --password $DOCKER_PASS
+    # - echo $DOCKER_PASS | docker login --username $DOCKER_USER --password-stdin
+  script:
+
+    - docker build -t $GITLAB_IMAGE_TAG .
+    # - docker build -t $IMAGE_TAG .
+    - docker images
+    - docker push $GITLAB_IMAGE_TAG
+    # - docker push $IMAGE_TAG
+
+
+deploy_feature:
+  image: docker:latest
+  services:
+    - docker:dind
+  stage: deploy-feature-stage
+  environment:
+    name: review/$CI_COMMIT_REF_NAME
+    url: https://198.211.29.93
+  before_script:
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+    - export FEATURE_APP="$CI_ENVIRONMENT_SLUG" >> deploy_feature.env
+    - echo $APEXBUGSERVER_STAGING_FEATURE
+    - export SERVER_FEATURE=$APEXBUGSERVER_STAGING_FEATURE
+
+  script:
+
+    - docker pull $GITLAB_IMAGE_TAG
+    - docker tag $GITLAB_IMAGE_TAG $FEATURE_APP
+
+    - echo $DOCKER_PASS | docker login --username $DOCKER_USER --password-stdin
+    - docker push $FEATURE_APP
+    - docker images
+    - docker run --rm -d -it -p 8000:80 $FEATURE_APP
+    - docker ps
+  artifacts:
+    untracked: false
+    when: on_success
+    expire_in: "30 days"
+    reports:
+      dotenv: deploy_feature.env
+  only:
+    - /^feature-.*$/
+
